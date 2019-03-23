@@ -108,7 +108,7 @@ public class CADJoint {
     public void calculateInverseBindTransform(Matrix4f parentBindTransform) {
         Matrix4f bindTransform = parentBindTransform.multiply(localBindTransform);
 
-        inverseBindTransform = bindTransform.inverse();
+        inverseBindTransform = bindTransform.invert();
         
         for(int i = 0; i < children.length; i++) {
             if(children[i] == null) {

@@ -83,7 +83,7 @@ public class CADObject {
 
             parseAnimationsData(parser.parseAnimationsLibrary());
 
-            rootJoint.calculateInverseBindTransform(new Matrix4f());
+            //rootJoint.calculateInverseBindTransform(new Matrix4f());
 
         } catch (ParsingException e){
             e.printStackTrace();
@@ -533,8 +533,7 @@ public class CADObject {
 
                             Matrix4f matrix = new Matrix4f(components);
 
-                            Vector3f position = new Vector3f(matrix.getComponents()[3][0], matrix.getComponents()[3][1],
-                                    matrix.getComponents()[3][2]);
+                            Vector3f position = new Vector3f(matrix.m30, matrix.m31, matrix.m32);
                             Quaternion rotation = new Quaternion(matrix);
 
                             keyFrames[i].getPoses().put(jointId, new CADJointTransform(position, rotation));
