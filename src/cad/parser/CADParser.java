@@ -81,7 +81,8 @@ public class CADParser {
      */
     private void createDocument(String path){
         try {
-            document = builder.parse(path);
+            //document = builder.parse(path);
+            document = builder.parse(ClassLoader.getSystemResourceAsStream(path));
         } catch (SAXException e) {
             System.err.print("CMDParser caused a SAXException.");
             e.printStackTrace();
