@@ -1,4 +1,4 @@
-package cali.object;
+package cali.model;
 
 import cali.commons.Input;
 import cali.commons.source.FloatArray;

@@ -1,4 +1,4 @@
-package cali.object;
+package cali.model;
 
 import cali.maths.CALiVector3f;
 

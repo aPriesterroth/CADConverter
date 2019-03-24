@@ -1,4 +1,4 @@
-package cali.object;
+package cali.model;
 
 import java.util.ArrayList;
 

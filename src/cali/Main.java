@@ -1,6 +1,6 @@
 package cali;
 
-import cali.object.CALiRawModel;
+import cali.model.CALiRawModel;
 
 /**
  * Created by Aaron on 18.11.17.

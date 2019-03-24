@@ -1,4 +1,4 @@
-package cali.object.animation;
+package cali.model.animation;
 
 /**
  * Created by Aaron on 23.11.17.
