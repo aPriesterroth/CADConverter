@@ -11,23 +11,23 @@ import cali.parser.CALiParser;
 
 public class CALiObject {
 
-    private final String filepath;
+    protected final String filepath;
 
-    private final boolean correctBlenderCoordinates;
+    protected final boolean correctBlenderCoordinates;
 
-    private final AnimationsLibrary animationsLibrary;
+    protected final AnimationsLibrary animationsLibrary;
 
-    private final ControllersLibrary controllersLibrary;
+    protected final ControllersLibrary controllersLibrary;
 
-    private final EffectsLibrary effectsLibrary;
+    protected final EffectsLibrary effectsLibrary;
 
-    private final GeometriesLibrary geometriesLibrary;
+    protected final GeometriesLibrary geometriesLibrary;
 
-    private final ImagesLibrary imagesLibrary;
+    protected final ImagesLibrary imagesLibrary;
 
-    private final MaterialsLibrary materialsLibrary;
+    protected final MaterialsLibrary materialsLibrary;
 
-    private final VisualScenesLibrary visualScenesLibrary;
+    protected final VisualScenesLibrary visualScenesLibrary;
 
     public CALiObject(String filepath, boolean correctBlenderCoordinates) {
         this.filepath = filepath;

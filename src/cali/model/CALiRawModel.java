@@ -4,23 +4,19 @@ import cali.commons.Input;
 import cali.commons.source.FloatArray;
 import cali.commons.source.NameArray;
 import cali.commons.source.Source;
-import cali.libraries.animations.AnimationsLibrary;
 import cali.libraries.controllers.ControllersLibrary;
-import cali.libraries.effects.EffectsLibrary;
 import cali.libraries.geometries.GeometriesLibrary;
 import cali.libraries.geometries.geometry.mesh.Mesh;
 import cali.libraries.geometries.geometry.mesh.Polylist;
-import cali.libraries.images.ImagesLibrary;
-import cali.libraries.materials.MaterialsLibrary;
 import cali.libraries.visualScenes.VisualScenesLibrary;
 import cali.libraries.visualScenes.visualScene.node.Node;
 import cali.maths.*;
-import cali.parser.CALiParser;
+import cali.object.CALiObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CALiRawModel {
+public class CALiRawModel extends CALiObject {
 
     /**
      * Idea to take everything from CALiObject2 and move it to here and make CALiObject2 the clean version of a model
@@ -31,33 +27,14 @@ public class CALiRawModel {
      * CALiObject2 is a "trimmed" version of the CALiRawModel.
      *      -> CALiRawModel contains everything (libraries, data, joints, filepath, etc.)
      *      -> CALiObject2 contains only required information (data, joints, etc.)
+     *
+     * UPDATE:
+     * CALiModel extends CALiRawModel but has a polish() option, where all memory intensive things are deleted.
+     * Implemented in the constructor, based on another CALiModel.
      */
 
     private static final CALiMatrix4f BLENDER_CORRECTION = new CALiMatrix4f().rotate((float) Math.toRadians(-90),
             new CALiVector3f(1, 0, 0));
-    
-    private final String filepath;
-
-    private final boolean correctBlenderCoordinates;
-    
-    private AnimationsLibrary animationsLibrary;
-    private ControllersLibrary controllersLibrary;
-    private EffectsLibrary effectsLibrary;
-    private GeometriesLibrary geometriesLibrary;
-    private ImagesLibrary imagesLibrary;
-    private MaterialsLibrary materialsLibrary;
-    private VisualScenesLibrary visualScenesLibrary;
-
-    private ArrayList<String> jointOrder;
-    private ArrayList<CALiVertexSkinData> skinningData;
-
-    private int jointCount;
-    private CALiJoint rootJoint;
-
-    private ArrayList<CALiVertex> verticesList;
-    private ArrayList<CALiVector2f> texturesList;
-    private ArrayList<CALiVector3f> normalsList;
-    private ArrayList<Integer> indicesList;
 
     private float[] vertices;
     private float[] textures;
@@ -66,6 +43,22 @@ public class CALiRawModel {
 
     private int[] indices;
     private int[] jointIds;
+
+    private int jointCount;
+
+    private CALiJoint rootJoint;
+
+    private ArrayList<String> jointOrder;
+
+    private ArrayList<CALiVertexSkinData> skinningData;
+
+    private ArrayList<CALiVertex> verticesList;
+
+    private ArrayList<CALiVector2f> texturesList;
+    private ArrayList<CALiVector3f> normalsList;
+
+    private ArrayList<Integer> indicesList;
+
 
     /**
      * Creates a CALiRawModel based on a filepath to a ".dae" file, initializes libraries and the parsing of data from
@@ -76,32 +69,9 @@ public class CALiRawModel {
      * @param correctBlenderCoordinates - the boolean flag indicating
      */
     public CALiRawModel(String filepath, boolean correctBlenderCoordinates) {
-        this.filepath = filepath;
-        this.correctBlenderCoordinates = correctBlenderCoordinates;
+        super(filepath, correctBlenderCoordinates);
 
-        initializeLibraries();
         initializeLibrariesParsing();
-    }
-
-    /**
-     * Initializes the parsing of the libraries.
-     */
-    private void initializeLibraries() {
-        CALiParser parser = new CALiParser(filepath);
-
-        animationsLibrary = parser.parseAnimationsLibrary();
-
-        controllersLibrary = parser.parseControllersLibrary();
-
-        effectsLibrary = parser.parseEffectsLibrary();
-
-        visualScenesLibrary = parser.parseVisualScenesLibrary();
-
-        geometriesLibrary = parser.parseGeometriesLibrary_polylist();
-
-        imagesLibrary = parser.parseImagesLibrary();
-
-        materialsLibrary = parser.parseMaterialsLibrary();
     }
 
     /**
@@ -564,14 +534,5 @@ public class CALiRawModel {
         }
 
         indices = indicesList.stream().mapToInt(i -> i).toArray();
-    }
-
-    /**
-     * Returns whether or not correction of blender coordinates is desired.
-     *
-     * @return - true if correction is desired, else false
-     */
-    private boolean correctBlenderCoordinates() {
-        return correctBlenderCoordinates;
     }
 }
