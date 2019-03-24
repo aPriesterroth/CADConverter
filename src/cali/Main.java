@@ -1,6 +1,6 @@
 package cali;
 
-import cali.object.CALiRawObject;
+import cali.object.CALiRawModel;
 
 /**
  * Created by Aaron on 18.11.17.
@@ -20,7 +20,7 @@ public class Main {
         //System.out.println("Finished 1000 CADObjects in: " + ((double) (System.currentTimeMillis() - start) / 1000.0) + "s.");
 
         //CALiObject2 object = new CALiObject2("models/model.dae");
-        CALiRawObject object = new CALiRawObject("models/human.dae", true);
+        CALiRawModel object = new CALiRawModel("models/human.dae", true);
         System.out.println(object.toString());
     }
 }

@@ -20,7 +20,7 @@ import cali.parser.CALiParser;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CALiRawObject {
+public class CALiRawModel {
 
     /**
      * Idea to take everything from CALiObject2 and move it to here and make CALiObject2 the clean version of a model
@@ -28,8 +28,8 @@ public class CALiRawObject {
      * on and now you have all the methods required to nicely deal with the animated model, as in "all the meaty logic
      * is outside and you can just use the getters to supply your needs".
      *
-     * CALiObject2 is a "trimmed" version of the CALiRawObject.
-     *      -> CALiRawObject contains everything (libraries, data, joints, filepath, etc.)
+     * CALiObject2 is a "trimmed" version of the CALiRawModel.
+     *      -> CALiRawModel contains everything (libraries, data, joints, filepath, etc.)
      *      -> CALiObject2 contains only required information (data, joints, etc.)
      */
 
@@ -68,14 +68,14 @@ public class CALiRawObject {
     private int[] jointIds;
 
     /**
-     * Creates a CALiRawObject based on a filepath to a ".dae" file, initializes libraries and the parsing of data from
+     * Creates a CALiRawModel based on a filepath to a ".dae" file, initializes libraries and the parsing of data from
      * them. The boolean flag "correctBlenderCoordinates"indicates whether or not all vectors and matrices should be
      * manipulated to compensate for Blenders coordinate orientation (Blender - OpenGL).
      *
      * @param filepath - the specific filepath
      * @param correctBlenderCoordinates - the boolean flag indicating
      */
-    public CALiRawObject(String filepath, boolean correctBlenderCoordinates) {
+    public CALiRawModel(String filepath, boolean correctBlenderCoordinates) {
         this.filepath = filepath;
         this.correctBlenderCoordinates = correctBlenderCoordinates;
 

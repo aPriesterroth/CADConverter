@@ -1,6 +1,6 @@
 package cali.object;
 
-public class CALiObject {
+public class CALiModel {
 
     private float[] vertices;
     private float[] textures;
@@ -13,7 +13,7 @@ public class CALiObject {
     private int jointCount;
     private CALiJoint rootJoint;
 
-    public CALiObject(CALiRawObject rawObject) {
+    public CALiModel(CALiRawModel rawObject) {
 
     }
 }
