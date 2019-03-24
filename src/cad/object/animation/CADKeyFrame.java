@@ -1,7 +1,6 @@
 package cad.object.animation;
 
-import cad.math.Matrix4f;
-import cad.object.animation.CADJointTransform;
+import cad.maths.CADMatrix4f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +32,8 @@ public class CADKeyFrame {
         return poses;
     }
 
-    public static Map<String, Matrix4f> interpolate(CADKeyFrame current, CADKeyFrame next, float progress) {
-        Map<String, Matrix4f> currentPose = new HashMap<String, Matrix4f>();
+    public static Map<String, CADMatrix4f> interpolate(CADKeyFrame current, CADKeyFrame next, float progress) {
+        Map<String, CADMatrix4f> currentPose = new HashMap<String, CADMatrix4f>();
 
         for(String jointName : current.getPoses().keySet()) {
             CADJointTransform previousTransform = current.getPoses().get(jointName);

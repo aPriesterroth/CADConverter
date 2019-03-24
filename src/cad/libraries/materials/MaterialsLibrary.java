@@ -1,11 +1,12 @@
 package cad.libraries.materials;
 
+import cad.libraries.Library;
 import cad.libraries.materials.material.Material;
 
 /**
  * Created by Aaron on 17.11.17.
  */
-public class MaterialsLibrary {
+public class MaterialsLibrary implements Library {
 
     private Material[] materials;
 
@@ -15,6 +16,11 @@ public class MaterialsLibrary {
 
     public Material[] getMaterials() {
         return materials;
+    }
+
+    @Override
+    public boolean isDataMissing() {
+        return materials == null;
     }
 }
 

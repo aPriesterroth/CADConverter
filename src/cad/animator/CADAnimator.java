@@ -1,6 +1,6 @@
 package cad.animator;
 
-import cad.math.Matrix4f;
+import cad.maths.CADMatrix4f;
 import cad.object.animation.CADAnimation;
 import cad.object.CADJoint;
 import cad.object.animation.CADKeyFrame;
@@ -58,7 +58,7 @@ public class CADAnimator {
         float progress = ((animationTime - current.getTimeStamp())
                 / (next.getTimeStamp() - current.getTimeStamp()));
 
-        updatePose(CADKeyFrame.interpolate(current, next, progress), rootJoint, new Matrix4f());
+        updatePose(CADKeyFrame.interpolate(current, next, progress), rootJoint, new CADMatrix4f());
     }
 
     /**
@@ -69,9 +69,9 @@ public class CADAnimator {
      * @param currentJoint - the currently updating joint
      * @param parentTransform - the transform of the parent of the current joint
      */
-    private void updatePose(Map<String, Matrix4f> currentPose, CADJoint currentJoint, Matrix4f parentTransform) {
-        Matrix4f currentTransformLocal = currentPose.get(currentJoint.getName());
-        Matrix4f currentTransform = parentTransform.multiply(currentTransformLocal);
+    private void updatePose(Map<String, CADMatrix4f> currentPose, CADJoint currentJoint, CADMatrix4f parentTransform) {
+        CADMatrix4f currentTransformLocal = currentPose.get(currentJoint.getName());
+        CADMatrix4f currentTransform = parentTransform.multiply(currentTransformLocal);
 
         for(CADJoint child : currentJoint.getChildren()) {
             updatePose(currentPose, child, currentTransform);

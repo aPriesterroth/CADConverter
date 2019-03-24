@@ -1,6 +1,6 @@
 package cad.object;
 
-import cad.math.Matrix4f;
+import cad.maths.CADMatrix4f;
 
 /**
  * Created by Aaron on 18.11.17.
@@ -19,32 +19,30 @@ public class CADJoint {
 
     private CADBoneType type;
 
-    private Matrix4f animatedTransform;
+    private CADMatrix4f animatedTransform;
 
-    private Matrix4f localBindTransform;
-    private Matrix4f inverseBindTransform;
+    private CADMatrix4f localBindTransform;
+    private CADMatrix4f inverseBindTransform;
 
     private CADJoint parent;
 
     private CADJoint[] children;
 
-    CADJoint(String id, String name, Matrix4f localBindTransform, CADJoint parent, CADJoint[] children) {
+    CADJoint(String id, String name, CADMatrix4f localBindTransform, CADJoint parent) {
         this.id = id;
         this.name = name;
         this.localBindTransform = localBindTransform;
         this.parent = parent;
-        this.children = children;
 
         this.type = CADBoneType.CADBone_NODE;
     }
 
-    CADJoint(String id, String name, String sid, Matrix4f localBindTransform, CADJoint parent, CADJoint[] children) {
+    CADJoint(String id, String name, String sid, CADMatrix4f localBindTransform, CADJoint parent) {
         this.id = id;
         this.name = name;
         this.sid = sid;
         this.localBindTransform = localBindTransform;
         this.parent = parent;
-        this.children = children;
 
         this.type = CADBoneType.CADBone_JOINT;
     }
@@ -69,15 +67,15 @@ public class CADJoint {
         return type;
     }
 
-    public Matrix4f getAnimatedTransform() {
+    public CADMatrix4f getAnimatedTransform() {
         return animatedTransform;
     }
 
-    public Matrix4f getLocalBindTransform() {
+    public CADMatrix4f getLocalBindTransform() {
         return localBindTransform;
     }
 
-    public Matrix4f getInverseBindTransform() {
+    public CADMatrix4f getInverseBindTransform() {
         return inverseBindTransform;
     }
 
@@ -97,16 +95,16 @@ public class CADJoint {
         this.index = index;
     }
 
-    public void setInverseBindTransform(Matrix4f inverseBindTransform) {
+    public void setInverseBindTransform(CADMatrix4f inverseBindTransform) {
         this.inverseBindTransform = inverseBindTransform;
     }
 
-    public void setAnimatedTransform(Matrix4f animatedTransform) {
+    public void setAnimatedTransform(CADMatrix4f animatedTransform) {
         this.animatedTransform = animatedTransform;
     }
 
-    public void calculateInverseBindTransform(Matrix4f parentBindTransform) {
-        Matrix4f bindTransform = parentBindTransform.multiply(localBindTransform);
+    public void calculateInverseBindTransform(CADMatrix4f parentBindTransform) {
+        CADMatrix4f bindTransform = parentBindTransform.multiply(localBindTransform);
 
         inverseBindTransform = bindTransform.invert();
         

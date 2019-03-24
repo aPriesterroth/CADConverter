@@ -1,6 +1,6 @@
-package cad.math;
+package cad.maths;
 
-public class Matrix4f {
+public class CADMatrix4f {
 
     private static final int MATRIX_DIMENSION = 4;
 
@@ -9,12 +9,12 @@ public class Matrix4f {
             m20, m21, m22, m23,
             m30, m31, m32, m33;
 
-    public Matrix4f() {
+    public CADMatrix4f() {
         super();
         setIdentity();
     }
 
-    public Matrix4f(float[] components) {
+    public CADMatrix4f(float[] components) {
         super();
         if(components.length == (MATRIX_DIMENSION * MATRIX_DIMENSION)) {
             m00 = components[0];
@@ -39,7 +39,7 @@ public class Matrix4f {
         }
     }
 
-    public Matrix4f(Matrix4f matrix) {
+    public CADMatrix4f(CADMatrix4f matrix) {
         super();
         m00 = matrix.m00;
         m01 = matrix.m01;
@@ -78,9 +78,9 @@ public class Matrix4f {
         m33 = 1.0f;
     }
 
-    public Matrix4f multiply(Matrix4f matrix4f) {
+    public CADMatrix4f multiply(CADMatrix4f matrix4f) {
         
-        Matrix4f multiplicar = new Matrix4f();
+        CADMatrix4f multiplicar = new CADMatrix4f();
         
         multiplicar.m00 = m00 * matrix4f.m00 + m10 * matrix4f.m01 + m20 * matrix4f.m02 + m30 * matrix4f.m03;
         multiplicar.m01 = m01 * matrix4f.m00 + m11 * matrix4f.m01 + m21 * matrix4f.m02 + m31 * matrix4f.m03;
@@ -101,8 +101,41 @@ public class Matrix4f {
 
         return multiplicar;
     }
+    
+    public CADMatrix4f multiply(float factor) {
+        CADMatrix4f multiplicar = new CADMatrix4f();
+
+        multiplicar.m00 = m00 * factor;
+        multiplicar.m11 = m11 * factor;
+        multiplicar.m22 = m22 * factor;
+        multiplicar.m33 = m33 * factor;
+        multiplicar.m01 = m10 * factor;
+        multiplicar.m10 = m01 * factor;
+        multiplicar.m20 = m02 * factor;
+        multiplicar.m02 = m20 * factor;
+        multiplicar.m12 = m21 * factor;
+        multiplicar.m21 = m12 * factor;
+        multiplicar.m03 = m30 * factor;
+        multiplicar.m30 = m03 * factor;
+        multiplicar.m13 = m31 * factor;
+        multiplicar.m31 = m13 * factor;
+        multiplicar.m32 = m23 * factor;
+        multiplicar.m23 = m32 * factor;
+
+        return multiplicar;
+    }
 
     public float determinant() {
+        return determinant4x4(m00, m01, m02, m03,
+                m10, m11, m12, m13,
+                m20, m21, m22, m23,
+                m30, m31, m32, m33);
+    }
+    
+    public static float determinant4x4(float m00, float m01, float m02, float m03,
+                                       float m10, float m11, float m12, float m13,
+                                       float m20, float m21, float m22, float m23,
+                                       float m30, float m31, float m32, float m33) {
         float det = m00 * ((m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32)
                 - m13 * m22 * m31
                 - m11 * m23 * m32
@@ -122,14 +155,16 @@ public class Matrix4f {
         return det;
     }
     
-    private float determinant3x3(float t00, float t01, float t02, float t10, float t11, float t12, float t20, 
-                                 float t21, float t22) {
-        return t00 * (t11 * t22 - t12 * t21) + t01 * (t12 * t20 - t10 * t22) + t02 * (t10 * t21 - t11 * t20);
+    private static float determinant3x3(float m00, float m01, float m02,
+                                        float m10, float m11, float m12,
+                                        float m20, float m21, float m22) {
+        return m00 * (m11 * m22 - m12 * m21) 
+                + m01 * (m12 * m20 - m10 * m22) 
+                + m02 * (m10 * m21 - m11 * m20);
     }
 
-    public Matrix4f transpose() {
-        
-        Matrix4f matrix4f = new Matrix4f(this);
+    public CADMatrix4f transpose() {
+        CADMatrix4f matrix4f = new CADMatrix4f(this);
         
         matrix4f.m00 = m00;
         matrix4f.m01 = m10;
@@ -151,14 +186,14 @@ public class Matrix4f {
         return matrix4f;
     }
 
-    public Matrix4f invert() {
+    public CADMatrix4f invert() {
         float determinant = determinant();
 
         if(determinant == 0) {
             return null;
         }
 
-        Matrix4f matrix4f = new Matrix4f();
+        CADMatrix4f matrix4f = new CADMatrix4f();
 
         // first row
         matrix4f.m00 = determinant3x3(m11, m12, m13, m21, m22, m23, m31, m32, m33);
@@ -181,35 +216,48 @@ public class Matrix4f {
         matrix4f.m32 = -determinant3x3(m00, m01, m03, m10, m11, m13, m20, m21, m23);
         matrix4f.m33 = determinant3x3(m00, m01, m02, m10, m11, m12, m20, m21, m22);
 
-        float invDeterminant = 1f/determinant;
-
-        matrix4f.m00 = matrix4f.m00*invDeterminant;
-        matrix4f.m11 = matrix4f.m11*invDeterminant;
-        matrix4f.m22 = matrix4f.m22*invDeterminant;
-        matrix4f.m33 = matrix4f.m33*invDeterminant;
-        matrix4f.m01 = matrix4f.m10*invDeterminant;
-        matrix4f.m10 = matrix4f.m01*invDeterminant;
-        matrix4f.m20 = matrix4f.m02*invDeterminant;
-        matrix4f.m02 = matrix4f.m20*invDeterminant;
-        matrix4f.m12 = matrix4f.m21*invDeterminant;
-        matrix4f.m21 = matrix4f.m12*invDeterminant;
-        matrix4f.m03 = matrix4f.m30*invDeterminant;
-        matrix4f.m30 = matrix4f.m03*invDeterminant;
-        matrix4f.m13 = matrix4f.m31*invDeterminant;
-        matrix4f.m31 = matrix4f.m13*invDeterminant;
-        matrix4f.m32 = matrix4f.m23*invDeterminant;
-        matrix4f.m23 = matrix4f.m32*invDeterminant;
-
-        return matrix4f;
+        return matrix4f.multiply(1.0f/determinant);
     }
 
-    public Matrix4f translate(Vector3f vector3f) {
-        Matrix4f matrix4f = new Matrix4f();
+    public CADMatrix4f translate(CADVector3f vector3f) {
+        CADMatrix4f matrix4f = new CADMatrix4f();
 
         matrix4f.m30 += m00 * vector3f.x + m10 * vector3f.y + m20 * vector3f.z;
         matrix4f.m31 += m01 * vector3f.x + m11 * vector3f.y + m21 * vector3f.z;
         matrix4f.m32 += m02 * vector3f.x + m12 * vector3f.y + m22 * vector3f.z;
         matrix4f.m33 += m03 * vector3f.x + m13 * vector3f.y + m23 * vector3f.z;
+
+        return matrix4f;
+    }
+
+    public CADMatrix4f rotate(float angle, CADVector3f axis) {
+        CADMatrix4f matrix4f = new CADMatrix4f();
+
+        float c = (float) Math.cos(angle);
+        float s = (float) Math.sin(angle);
+
+        float f00 = axis.x * axis.x * (1.0f - c) + c;
+        float f01 = (axis.x * axis.y) * (1.0f - c) + (axis.z * s);
+        float f02 = (axis.x * axis.z) * (1.0f - c) - (axis.y * s);
+        float f10 = (axis.x * axis.y) * (1.0f - c) - (axis.z * s);
+        float f11 = axis.y * axis.y * (1.0f - c) + c;
+        float f12 = (axis.y * axis.z) * (1.0f - c) + (axis.x * s);
+        float f20 = (axis.x * axis.z) * (1.0f - c) + (axis.y * s);
+        float f21 = (axis.y * axis.z) * (1.0f - c) - (axis.x * s);
+        float f22 = axis.z * axis.z * (1.0f - c) + c;
+
+        matrix4f.m20 = m00 * f20 + m10 * f21 + m20 * f22;
+        matrix4f.m21 = m01 * f20 + m11 * f21 + m21 * f22;
+        matrix4f.m22 = m02 * f20 + m12 * f21 + m22 * f22;
+        matrix4f.m23 = m03 * f20 + m13 * f21 + m23 * f22;
+        matrix4f.m00 = m00 * f00 + m10 * f01 + m20 * f02;
+        matrix4f.m01 = m01 * f00 + m11 * f01 + m21 * f02;
+        matrix4f.m02 = m02 * f00 + m12 * f01 + m22 * f02;
+        matrix4f.m03 = m03 * f00 + m13 * f01 + m23 * f02;
+        matrix4f.m10 = m00 * f10 + m10 * f11 + m20 * f12;
+        matrix4f.m11 = m01 * f10 + m11 * f11 + m21 * f12;
+        matrix4f.m12 = m02 * f10 + m12 * f11 + m22 * f12;
+        matrix4f.m13 = m03 * f10 + m13 * f11 + m23 * f12;
 
         return matrix4f;
     }
