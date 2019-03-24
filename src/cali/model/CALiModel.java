@@ -1,19 +1,16 @@
 package cali.model;
 
-public class CALiModel {
+public class CALiModel extends CALiRawModel {
 
-    private float[] vertices;
-    private float[] textures;
-    private float[] normals;
-    private float[] weights;
+    public CALiModel(String filepath, boolean correctBlenderCoordinates) {
+        super(filepath, correctBlenderCoordinates);
+    }
 
-    private int[] indices;
-    private int[] jointIds;
+    private CALiModel(CALiModel model) {
+        super(model);
+    }
 
-    private int jointCount;
-    private CALiJoint rootJoint;
-
-    public CALiModel(CALiRawModel rawObject) {
-
+    public CALiModel extractMinimalModel() {
+        return new CALiModel(this);
     }
 }

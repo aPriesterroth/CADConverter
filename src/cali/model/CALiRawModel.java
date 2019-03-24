@@ -36,29 +36,55 @@ public class CALiRawModel extends CALiObject {
     private static final CALiMatrix4f BLENDER_CORRECTION = new CALiMatrix4f().rotate((float) Math.toRadians(-90),
             new CALiVector3f(1, 0, 0));
 
-    private float[] vertices;
-    private float[] textures;
-    private float[] normals;
-    private float[] weights;
+    protected float[] vertices;
+    protected float[] textures;
+    protected float[] normals;
+    protected float[] weights;
 
-    private int[] indices;
-    private int[] jointIds;
+    protected int[] indices;
+    protected int[] jointIds;
 
-    private int jointCount;
+    protected int jointCount;
 
-    private CALiJoint rootJoint;
+    protected CALiJoint rootJoint;
 
-    private ArrayList<String> jointOrder;
+    protected ArrayList<String> jointOrder;
 
-    private ArrayList<CALiVertexSkinData> skinningData;
+    protected ArrayList<CALiVertexSkinData> skinningData;
 
-    private ArrayList<CALiVertex> verticesList;
+    protected ArrayList<CALiVertex> verticesList;
 
-    private ArrayList<CALiVector2f> texturesList;
-    private ArrayList<CALiVector3f> normalsList;
+    protected ArrayList<CALiVector2f> texturesList;
+    protected ArrayList<CALiVector3f> normalsList;
 
-    private ArrayList<Integer> indicesList;
+    protected ArrayList<Integer> indicesList;
 
+
+    protected CALiRawModel(CALiRawModel rawModel) {
+        super(null, rawModel.correctBlenderCoordinates);
+        this.vertices = rawModel.vertices;
+        this.textures = rawModel.textures;
+        this.normals = rawModel.normals;
+        this.weights = rawModel.weights;
+
+        this.indices = rawModel.indices;
+        this.jointIds = rawModel.jointIds;
+
+        this.jointCount = rawModel.jointCount;
+
+        this.rootJoint = rawModel.rootJoint;
+
+        this.jointOrder = null;
+
+        this.skinningData = null;
+
+        this.verticesList = null;
+
+        this.texturesList = null;
+        this.normalsList = null;
+
+        this.indicesList = null;
+    }
 
     /**
      * Creates a CALiRawModel based on a filepath to a ".dae" file, initializes libraries and the parsing of data from
