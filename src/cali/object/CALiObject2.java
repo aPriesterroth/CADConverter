@@ -187,45 +187,44 @@ public class CALiObject2 {
         List<Integer> nIndices = new ArrayList<>();
         List<Integer> tIndices = new ArrayList<>();
 
-        for(Polylist polylist : library.getGeometry().getMesh().getPolylists()){
+        Polylist polylist = library.getPolylist();
 
-            int vOff = -1, nOff = -1, tOff = -1;
+        int vOff = -1, nOff = -1, tOff = -1;
 
-            for(Input input : polylist.getInputs()){
-                switch (input.getSemantic()) {
-                    case "VERTEX":
-                        vOff = input.getOffset();
-                        break;
-                    case "NORMAL":
-                        nOff = input.getOffset();
-                        break;
-                    case "TEXCOORD":
-                        tOff = input.getOffset();
-                        break;
-                }
+        for(Input input : polylist.getInputs()){
+            switch (input.getSemantic()) {
+                case "VERTEX":
+                    vOff = input.getOffset();
+                    break;
+                case "NORMAL":
+                    nOff = input.getOffset();
+                    break;
+                case "TEXCOORD":
+                    tOff = input.getOffset();
+                    break;
             }
-
-            if(vOff == -1 || nOff == -1 || tOff == -1)
-                throw new ParsingException("Unable to retrieve vertices, normals and textureCoords offset!");
-
-            int paragraphOffset = 0, inputCount = polylist.getInputs().length;
-
-            for(int i = 0; i < polylist.getvCount().length; i++)
-                for(int j = 0; j < polylist.getvCount()[i]; j++){
-                    vIndices.add(polylist.getParagraph()[vOff + paragraphOffset]);
-                    if(inputCount == 1){
-                        paragraphOffset += inputCount;
-                        continue;
-                    }
-                    nIndices.add(polylist.getParagraph()[nOff + paragraphOffset]);
-                    if(inputCount == 2){
-                        paragraphOffset += inputCount;
-                        continue;
-                    }
-                    tIndices.add(polylist.getParagraph()[tOff + paragraphOffset]);
-                    paragraphOffset += inputCount;
-                }
         }
+
+        if(vOff == -1 || nOff == -1 || tOff == -1)
+            throw new ParsingException("Unable to retrieve vertices, normals and textureCoords offset!");
+
+        int paragraphOffset = 0, inputCount = polylist.getInputs().length;
+
+        for(int i = 0; i < polylist.getvCount().length; i++)
+            for(int j = 0; j < polylist.getvCount()[i]; j++){
+                vIndices.add(polylist.getParagraph()[vOff + paragraphOffset]);
+                if(inputCount == 1){
+                    paragraphOffset += inputCount;
+                    continue;
+                }
+                nIndices.add(polylist.getParagraph()[nOff + paragraphOffset]);
+                if(inputCount == 2){
+                    paragraphOffset += inputCount;
+                    continue;
+                }
+                tIndices.add(polylist.getParagraph()[tOff + paragraphOffset]);
+                paragraphOffset += inputCount;
+            }
 
         vertexIndices = vIndices.stream().mapToInt(i -> i).toArray();
         normalIndices = nIndices.stream().mapToInt(i -> i).toArray();

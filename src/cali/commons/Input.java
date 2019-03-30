@@ -1,9 +1,11 @@
 package cali.commons;
 
+import cali.interfaces.CALiDataStructure;
+
 /**
  * Created by Aaron on 17.11.17.
  */
-public class Input {
+public class Input implements CALiDataStructure {
 
     private enum InputType {
         SEMANTIC_SOURCE, SEMANTIC_SOURCE_OFFSET, SEMANTIC_SOURCE_OFFSET_SET
@@ -44,6 +46,11 @@ public class Input {
         this.set = set;
 
         this.type = InputType.SEMANTIC_SOURCE_OFFSET_SET;
+    }
+
+    @Override
+    public String getId() {
+        return CALiDataStructure.NO_ID;
     }
 
     public String getSemantic() {

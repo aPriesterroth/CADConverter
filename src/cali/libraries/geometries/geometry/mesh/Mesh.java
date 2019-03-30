@@ -8,28 +8,28 @@ import cali.commons.source.Source;
 public class Mesh {
 
     public enum MeshType {
-        POLYLISTS, TRIANGLES
+        POLYLIST, TRIANGLES
     }
 
     private Source[] sources;
 
     private Vertices vertices;
 
-    private Triangles[] triangles;
+    private Triangles triangles;
 
-    private Polylist[] polylists;
+    private Polylist polylist;
 
     private MeshType type;
 
-    public Mesh(Source[] sources, Vertices vertices, Polylist[] polylists) {
+    public Mesh(Source[] sources, Vertices vertices, Polylist polylist) {
         this.sources = sources;
         this.vertices = vertices;
-        this.polylists = polylists;
+        this.polylist = polylist;
 
-        this.type = MeshType.POLYLISTS;
+        this.type = MeshType.POLYLIST;
     }
 
-    public Mesh(Source[] sources, Vertices vertices, Triangles[] triangles) {
+    public Mesh(Source[] sources, Vertices vertices, Triangles triangles) {
         this.sources = sources;
         this.vertices = vertices;
         this.triangles = triangles;
@@ -45,12 +45,12 @@ public class Mesh {
         return vertices;
     }
 
-    public Triangles[] getTriangles() {
+    public Triangles getTriangles() {
         return triangles;
     }
 
-    public Polylist[] getPolylists() {
-        return polylists;
+    public Polylist getPolylist() {
+        return polylist;
     }
 
     public MeshType getType() {

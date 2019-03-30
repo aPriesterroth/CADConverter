@@ -10,30 +10,15 @@ public class CALiAnimationManager {
      * example
      *
      * @param modelName -
-     * @param animationName -
      * @param animation -
      */
-    public static void addAnimation(String modelName, String animationName, CALiAnimation animation) {
-
-        HashMap<String, CALiAnimation> modelAnimations;
-
-        if(animations.containsKey(modelName)) {
-            modelAnimations = animations.get(modelName);
+    public static void introduceAnimation(String modelName, CALiAnimation animation) {
+        if(hasAnimations(modelName)) {
+            animations.get(modelName).put(animation.getName(), animation);
         } else {
-            modelAnimations = new HashMap<>();
+            animations.put(modelName, new HashMap<>());
+            introduceAnimation(modelName, animation);
         }
-
-        modelAnimations.put(animationName, animation);
-    }
-
-    /**
-     * example
-     *
-     * @param modelName -
-     * @param animations -
-     */
-    public static void addAnimations(String modelName, HashMap<String, CALiAnimation> animations) {
-        CALiAnimationManager.animations.put(modelName, animations);
     }
 
     /**

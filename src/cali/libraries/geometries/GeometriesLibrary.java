@@ -45,18 +45,18 @@ public class GeometriesLibrary implements Library {
     }
 
     @Deprecated
-    public Triangles[] getTriangles() {
+    public Triangles getTriangles() {
         if(isDataMissing()) {
             return null;
         }
         return geometry.getMesh().getTriangles();
     }
 
-    public Polylist[] getPolylists() {
+    public Polylist getPolylist() {
         if(isDataMissing()) {
             return null;
         }
-        return geometry.getMesh().getPolylists();
+        return geometry.getMesh().getPolylist();
     }
 
     public Mesh.MeshType getMeshType() {

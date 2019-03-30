@@ -224,7 +224,7 @@ public class CALiParser {
                 mesh = new Mesh(
                         parseSourcesFromParent(meshElement),
                         parseGeometriesLibraryGeometryMeshVertices(meshElement),
-                        parseGeometriesLibraryGeometryMeshPolylists(meshElement));
+                        parseGeometriesLibraryGeometryMeshPolylist(meshElement));
                 break;
             }
         }
@@ -249,7 +249,7 @@ public class CALiParser {
                 mesh = new Mesh(
                         parseSourcesFromParent(meshElement),
                         parseGeometriesLibraryGeometryMeshVertices(meshElement),
-                        parseGeometriesLibraryGeometryMeshPolylists(meshElement));
+                        parseGeometriesLibraryGeometryMeshPolylist(meshElement));
                 break;
             } else if(getChildrenByNameAndParent("triangle", meshElement).size() > 0) {
                 mesh = new Mesh(
@@ -296,24 +296,23 @@ public class CALiParser {
      *
      * @return - the created array of "Polylist" objects
      */
-    private Polylist[] parseGeometriesLibraryGeometryMeshPolylists(Element parent) {
-        ArrayList<Polylist> polylists = new ArrayList<>();
+    private Polylist parseGeometriesLibraryGeometryMeshPolylist(Element parent) {
+        Polylist polylist = null;
 
-        for(Element polylist : getChildrenByNameAndParent("polylist", parent)) {
-
-            polylists.add(new Polylist(
-                    Integer.parseInt(polylist.getAttribute("count")),
-                    polylist.getAttribute("material"),
-                    parseInputsFromParent(polylist),
-                    parseIntArrayFromParent(polylist, "vcount"),
-                    parseIntArrayFromParent(polylist, "p")));
+        for(Element polylistElement : getChildrenByNameAndParent("polylist", parent)) {
+            polylist = new Polylist(
+                    Integer.parseInt(polylistElement.getAttribute("count")),
+                    polylistElement.getAttribute("material"),
+                    parseInputsFromParent(polylistElement),
+                    parseIntArrayFromParent(polylistElement, "vcount"),
+                    parseIntArrayFromParent(polylistElement, "p"));
         }
 
-        return polylists.toArray(new Polylist[0]);
+        return polylist;
     }
 
     /**
-     * @deprecated use {@link #parseGeometriesLibraryGeometryMeshPolylists(Element parent)} instead.
+     * @deprecated use {@link #parseGeometriesLibraryGeometryMeshPolylist(Element parent)} instead.
      *
      * Created an array of "Triangles" object based on a specific parent s and returns it.
      *
@@ -322,24 +321,17 @@ public class CALiParser {
      * @return - the created array of "Triangles" objects
      */
     @Deprecated
-    private Triangles[] parseGeometriesLibraryGeometryMeshTriangles(Element parent) {
-        ArrayList<Triangles> triangles = new ArrayList<>();
+    private Triangles parseGeometriesLibraryGeometryMeshTriangles(Element parent) {
+        Triangles triangles = null;
 
         for(Element trianglesElement : getChildrenByNameAndParent("triangle", parent)) {
-            triangles.add(new Triangles(
+            triangles = new Triangles(
                     Integer.parseInt(trianglesElement.getAttribute("count")),
                     trianglesElement.getAttribute("material"),
                     parseGeometriesLibraryGeometryMeshTrianglesInputs(trianglesElement),
-                    parseGeometriesLibraryGeometryMeshTrianglesParagraphs(trianglesElement)));
+                    parseGeometriesLibraryGeometryMeshTrianglesParagraphs(trianglesElement));
         }
-
-        Triangles[] trianglesArray = new Triangles[triangles.size()];
-
-        for(int i = 0; i < triangles.size(); i++) {
-            trianglesArray[i] = triangles.get(i);
-        }
-
-        return trianglesArray;
+        return triangles;
     }
 
     /**
