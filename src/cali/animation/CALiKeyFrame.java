@@ -1,4 +1,4 @@
-package cali.model.animation;
+package cali.animation;
 
 import cali.maths.CALiMatrix4f;
 

@@ -114,4 +114,9 @@ public class CALiQuaternion {
 
         return interpol;
     }
+
+    @Override
+    public String toString() {
+        return w + " + " + x + "i + " + y + "j + " + z + "k";
+    }
 }

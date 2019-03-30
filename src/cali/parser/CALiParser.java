@@ -904,8 +904,9 @@ public class CALiParser {
 
         for(Element animation : getChildrenByNameAndParent("animation", parent)) {
             animations.add(new Animation(
+                    animation.getAttribute("id"),
                     parseSourcesFromParent(animation),
-                    parseAnimationsLibraryAnimationsSamplers(animation),
+                    parseAnimationsLibraryAnimationsSampler(animation),
                     parseAnimationsLibraryAnimationsChannel(animation)));
         }
         return animations.toArray(new Animation[0]);
@@ -918,15 +919,14 @@ public class CALiParser {
      *
      * @return - the created array of "Sampler" objects
      */
-    private Sampler[] parseAnimationsLibraryAnimationsSamplers(Element parent) {
-        ArrayList<Sampler> samplers = new ArrayList<>();
+    private Sampler parseAnimationsLibraryAnimationsSampler(Element parent) {
+        Sampler sampler = null;
 
-        for(Element sampler : getChildrenByNameAndParent("sampler", parent)) {
-            samplers.add(new Sampler(
-                    sampler.getAttribute("id"),
-                    parseInputsFromParent(sampler)));
+        for(Element samplerElement : getChildrenByNameAndParent("sampler", parent)) {
+            sampler = new Sampler(samplerElement.getAttribute("id"),
+                    parseInputsFromParent(samplerElement));
         }
-        return samplers.toArray(new Sampler[0]);
+        return sampler;
     }
 
     /**

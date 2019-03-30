@@ -28,7 +28,7 @@ public class CALiJoint {
 
     private CALiJoint[] children;
 
-    CALiJoint(String id, String name, CALiMatrix4f localBindTransform, CALiJoint parent) {
+    public CALiJoint(String id, String name, CALiMatrix4f localBindTransform, CALiJoint parent) {
         this.id = id;
         this.name = name;
         this.localBindTransform = localBindTransform;
@@ -37,7 +37,7 @@ public class CALiJoint {
         this.type = CADBoneType.CADBone_NODE;
     }
 
-    CALiJoint(String id, String name, String sid, CALiMatrix4f localBindTransform, CALiJoint parent) {
+    public CALiJoint(String id, String name, String sid, CALiMatrix4f localBindTransform, CALiJoint parent) {
         this.id = id;
         this.name = name;
         this.sid = sid;
@@ -107,13 +107,11 @@ public class CALiJoint {
         CALiMatrix4f bindTransform = parentBindTransform.multiply(localBindTransform);
 
         inverseBindTransform = bindTransform.invert();
-        
-        for(int i = 0; i < children.length; i++) {
-            if(children[i] == null) {
-                System.err.println("Child is null during inverse bind transform calculation!");
-                return;
+
+        if(children != null) {
+            for (CALiJoint child : children) {
+                child.calculateInverseBindTransform(bindTransform);
             }
-            children[i].calculateInverseBindTransform(bindTransform);
         }
     }
 }

@@ -4,17 +4,24 @@ import cali.commons.Input;
 import cali.commons.source.FloatArray;
 import cali.commons.source.NameArray;
 import cali.commons.source.Source;
+import cali.libraries.animations.AnimationsLibrary;
+import cali.libraries.animations.animation.Animation;
 import cali.libraries.controllers.ControllersLibrary;
 import cali.libraries.geometries.GeometriesLibrary;
 import cali.libraries.geometries.geometry.mesh.Mesh;
 import cali.libraries.geometries.geometry.mesh.Polylist;
+import cali.libraries.images.ImagesLibrary;
 import cali.libraries.visualScenes.VisualScenesLibrary;
 import cali.libraries.visualScenes.visualScene.node.Node;
 import cali.maths.*;
+import cali.animation.*;
 import cali.object.CALiObject;
+import cali.parser.CALiParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CALiRawModel extends CALiObject {
 
@@ -31,10 +38,29 @@ public class CALiRawModel extends CALiObject {
      * UPDATE:
      * CALiModel extends CALiRawModel but has a polish() option, where all memory intensive things are deleted.
      * Implemented in the constructor, based on another CALiModel.
+     *
+     * UPDATE 2:
+     * For the animations, once can create a RawModel (or something else, not quite sure yet) and use the method
+     * extractAnimations() to retrieve the list of animations for this model and keep it at one place, instead of for
+     * every model itself. But maybe its not even problematic to keep it for every model (look into space complexity).
+     * How ever, from this point on can call duplicate() on the raw model to derive the desired model from the blueprint,
+     * while specifying different textures maybe? Also add functionality for derive() method which derives a model
+     * instead of a raw model.
+     *
+     *
+     * If you can only put 1 animation into a model, how about extracting the logic to parse an animation to have
+     * access to the method were only an animation is loaded from the model file and just call the logic in the model
+     * to extract the animation itself.
      */
 
     private static final CALiMatrix4f BLENDER_CORRECTION = new CALiMatrix4f().rotate((float) Math.toRadians(-90),
             new CALiVector3f(1, 0, 0));
+
+    // TODO
+    protected String modelName = "";
+
+    // TODO
+    protected String animationName = "";
 
     protected float[] vertices;
     protected float[] textures;
@@ -59,9 +85,14 @@ public class CALiRawModel extends CALiObject {
 
     protected ArrayList<Integer> indicesList;
 
+    protected String textureFileName;
 
     protected CALiRawModel(CALiRawModel rawModel) {
         super(null, rawModel.correctBlenderCoordinates);
+
+        this.modelName = rawModel.modelName;
+        this.animationName = rawModel.animationName;
+
         this.vertices = rawModel.vertices;
         this.textures = rawModel.textures;
         this.normals = rawModel.normals;
@@ -84,6 +115,8 @@ public class CALiRawModel extends CALiObject {
         this.normalsList = null;
 
         this.indicesList = null;
+
+        this.textureFileName = rawModel.textureFileName;
     }
 
     /**
@@ -94,8 +127,11 @@ public class CALiRawModel extends CALiObject {
      * @param filepath - the specific filepath
      * @param correctBlenderCoordinates - the boolean flag indicating
      */
-    public CALiRawModel(String filepath, boolean correctBlenderCoordinates) {
+    public CALiRawModel(String filepath, String animationName, boolean correctBlenderCoordinates) {
         super(filepath, correctBlenderCoordinates);
+
+        this.modelName = filepath;
+        this.animationName = animationName;
 
         initializeLibrariesParsing();
     }
@@ -108,7 +144,160 @@ public class CALiRawModel extends CALiObject {
 
         parseDataFromVisualScenesLibrary(visualScenesLibrary);
 
+        rootJoint.calculateInverseBindTransform(new CALiMatrix4f());
+
         parseDataFromGeometriesLibrary(geometriesLibrary);
+
+        parseDataFromImagesLibrary(imagesLibrary);
+
+        if(CALiAnimationManager.hasAnimation(modelName, animationName)) {
+            parseDataFromAnimationsLibrary(animationsLibrary, animationName);
+        }
+    }
+
+    public void addAnimation(String path, String animationName) {
+        if(CALiAnimationManager.hasAnimation(modelName, animationName)) {
+            parseDataFromAnimationsLibrary(new CALiParser(path).parseAnimationsLibrary(), animationName);
+        }
+    }
+
+    private void parseDataFromAnimationsLibrary(AnimationsLibrary library, String animationName) {
+
+        Animation rootJointAnimation = null;
+
+        for(Animation animation : library.getAnimations()) {
+            if(animation.getId().contains(rootJoint.getId())) {
+                rootJointAnimation = animation;
+                break;
+            }
+        }
+
+        if(rootJointAnimation == null) {
+            System.err.println("rootJointAnimation is null!");
+            return;
+        }
+
+        String inputSourceStr = "";
+
+        for(Input input : rootJointAnimation.getSampler().getInputs()) {
+            if(input.getSemantic().equals("INPUT")) {
+                inputSourceStr = input.getSource();
+                break;
+            }
+        }
+
+        if(inputSourceStr.equals("")) {
+            System.err.println("inputSourceStr is empty!");
+            return;
+        }
+
+        Source inputSource = null;
+
+        for(Source source : rootJointAnimation.getSources()) {
+            if(source.getId().equals(inputSourceStr)) {
+                inputSource = source;
+                break;
+            }
+        }
+
+        if(inputSource == null) {
+            System.err.println("inputSource is null!");
+            return;
+        }
+
+        float[] times = ((FloatArray) inputSource.getArray()).getFloats();
+
+        float duration = times[times.length - 1];
+
+        CALiKeyFrameData[] keyFramesData = new CALiKeyFrameData[times.length];
+
+        for(int i = 0; i < keyFramesData.length; i++) {
+            keyFramesData[i] = new CALiKeyFrameData(times[i]);
+        }
+
+        for(Animation animation : library.getAnimations()) {
+            // Only get the first part of "Torso/transform"
+            String targetId = animation.getChannel().getTarget().split("/")[0];
+            String outputId = "";
+
+            for(Input input : animation.getSampler().getInputs()) {
+                if(input.getSemantic().equals("OUTPUT")) {
+                    outputId = input.getSource();
+                }
+            }
+
+            if(outputId.equals("")) {
+                System.err.println("outputId is empty!");
+                return;
+            }
+
+            Source outputSource = null;
+
+            for(Source source : animation.getSources()) {
+                if(source.getId().equals(outputId)) {
+                    outputSource = source;
+                    break;
+                }
+            }
+
+            if(outputSource == null) {
+                System.err.println("outputSource is null!");
+                return;
+            }
+
+            for(int i = 0; i < keyFramesData.length; i++) {
+                float[] sub = Arrays.copyOfRange(((FloatArray) outputSource.getArray()).getFloats(), 16*i, 16*i + 16);
+
+                CALiMatrix4f transform = new CALiMatrix4f(sub).transpose();
+
+                if(correctBlenderCoordinates && targetId.equals(rootJoint.getId())) {
+                    transform = BLENDER_CORRECTION.multiply(transform);
+                }
+
+                keyFramesData[i].addJointTransform(new CALiJointTransformData(targetId, transform));
+            }
+        }
+
+        // ---------------------------------------------------------------
+        // Create actual KeyFrame array
+
+        CALiKeyFrame[] keyFrames = new CALiKeyFrame[keyFramesData.length];
+
+        for(int i = 0; i < keyFrames.length; i++) {
+
+            Map<String, CALiJointTransform> map = new HashMap<>();
+
+            for(CALiJointTransformData jointTransformData : keyFramesData[i].jointTransforms) {
+
+                CALiMatrix4f matrix = jointTransformData.jointLocalTransform;
+                CALiVector3f translation = new CALiVector3f(matrix.m30, matrix.m31, matrix.m32);
+                CALiQuaternion rotation = new CALiQuaternion(matrix);
+
+                CALiJointTransform jointTransform = new CALiJointTransform(translation, rotation);
+                map.put(jointTransformData.jointNameId, jointTransform);
+            }
+
+            keyFrames[i] = new CALiKeyFrame(keyFramesData[i].time, map);
+        }
+
+        CALiAnimation caliAnimation = new CALiAnimation(animationName, duration, keyFrames);
+
+        if(CALiAnimationManager.getAnimations(modelName) == null) {
+            CALiAnimationManager.addAnimation(modelName, animationName, caliAnimation);
+        } else {
+            HashMap<String, CALiAnimation> animations = new HashMap<>();
+            animations.put(caliAnimation.getName(), caliAnimation);
+            CALiAnimationManager.addAnimations(modelName, animations);
+        }
+    }
+
+    /**
+     * Parsing the textureFileName from a specific ImagesLibrary.
+     *
+     * @param library - the specific ImagesLibrary to parse data from
+     */
+    private void parseDataFromImagesLibrary(ImagesLibrary library) {
+        textureFileName = library.getInitFrom();
     }
 
     /**
@@ -118,8 +307,8 @@ public class CALiRawModel extends CALiObject {
      */
     private void parseDataFromControllersLibrary(ControllersLibrary library) {
 
-        String jointsSourceStr = getSourceId("JOINT", library.getVertexWeights().getInputs());
-        String weightsSourceStr = getSourceId("WEIGHT", library.getVertexWeights().getInputs());
+        String jointsSourceStr = findSourceId("JOINT", library.getVertexWeights().getInputs());
+        String weightsSourceStr = findSourceId("WEIGHT", library.getVertexWeights().getInputs());
 
         if(jointsSourceStr.equals("") || weightsSourceStr.equals("")) {
             System.err.println("Unable to locate joints/weights source string!");
@@ -127,13 +316,13 @@ public class CALiRawModel extends CALiObject {
 
         Source currentSource;
 
-        if((currentSource = getSourceById(jointsSourceStr, library.getSources())) == null) {
+        if((currentSource = findSourceById(jointsSourceStr, library.getSources())) == null) {
             System.err.println("Unable to retrieve joint source!");
             return;
         }
         ArrayList<String> jointOrder = new ArrayList<>(Arrays.asList(((NameArray) currentSource.getArray()).getNames()));
 
-        if((currentSource = getSourceById(weightsSourceStr, library.getSources())) == null) {
+        if((currentSource = findSourceById(weightsSourceStr, library.getSources())) == null) {
             System.err.println("Unable to retrieve weights source!");
             return;
         }
@@ -286,10 +475,10 @@ public class CALiRawModel extends CALiObject {
         if(library.getPolylists() != null) {
             for(Polylist polylist : library.getPolylists()) {
                 if(texturesSourceId.equals("")) {
-                    texturesSourceId = getSourceId("TEXCOORD", polylist.getInputs());
+                    texturesSourceId = findSourceId("TEXCOORD", polylist.getInputs());
                 }
                 if(normalsSourceId.equals("")) {
-                    normalsSourceId = getSourceId("NORMAL", polylist.getInputs());
+                    normalsSourceId = findSourceId("NORMAL", polylist.getInputs());
                 }
             }
         } else {
@@ -304,19 +493,19 @@ public class CALiRawModel extends CALiObject {
 
         Source currentSource;
 
-        if((currentSource = getSourceById(verticesSourceId, library.getSources())) == null) {
+        if((currentSource = findSourceById(verticesSourceId, library.getSources())) == null) {
             System.err.println("Unable to retrieve vertices source!");
             return;
         }
         parseVerticesList(((FloatArray) currentSource.getArray()).getFloats());
 
-        if((currentSource = getSourceById(texturesSourceId, library.getSources())) == null) {
+        if((currentSource = findSourceById(texturesSourceId, library.getSources())) == null) {
             System.err.println("Unable to retrieve textures source!");
             return;
         }
         parseTexturesList(((FloatArray) currentSource.getArray()).getFloats());
 
-        if((currentSource = getSourceById(normalsSourceId, library.getSources())) == null) {
+        if((currentSource = findSourceById(normalsSourceId, library.getSources())) == null) {
             System.err.println("Unable to retrieve normals source!");
             return;
         }
@@ -337,7 +526,7 @@ public class CALiRawModel extends CALiObject {
      *
      * @return - the "SourceString" if a matching input was found, else an empty string
      */
-    private String getSourceId(String semantic, Input[] inputs) {
+    private String findSourceId(String semantic, Input[] inputs) {
         for(Input input : inputs) {
             if(input.getSemantic().equals(semantic)) {
                 return input.getSource();
@@ -354,7 +543,7 @@ public class CALiRawModel extends CALiObject {
      *
      * @return - the "Source" if a matching source was found, else null
      */
-    private Source getSourceById(String id, Source[] sources) {
+    private Source findSourceById(String id, Source[] sources) {
         if(sources != null) {
             for(Source source : sources) {
                 if(source.getId().equals(id)) {

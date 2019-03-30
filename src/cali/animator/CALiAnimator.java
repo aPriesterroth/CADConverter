@@ -2,8 +2,8 @@ package cali.animator;
 
 import cali.maths.CALiMatrix4f;
 import cali.model.CALiJoint;
-import cali.model.animation.CALiAnimation;
-import cali.model.animation.CALiKeyFrame;
+import cali.animation.CALiAnimation;
+import cali.animation.CALiKeyFrame;
 
 import java.util.Map;
 

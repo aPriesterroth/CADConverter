@@ -20,7 +20,9 @@ public class Main {
         //System.out.println("Finished 1000 CADObjects in: " + ((double) (System.currentTimeMillis() - start) / 1000.0) + "s.");
 
         //CALiObject2 object = new CALiObject2("models/model.dae");
-        CALiRawModel object = new CALiRawModel("models/human.dae", true);
+        CALiRawModel object = new CALiRawModel("models/model.dae", "walk", true);
+        // To add an animation to a model:
+        // object.addAnimation("/models/model.dae", "Jump");
         System.out.println(object.toString());
     }
 }

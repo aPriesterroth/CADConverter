@@ -7,22 +7,29 @@ import cali.commons.source.Source;
  */
 public class Animation {
 
+    private String id;
+
     private Source[] sources;
-    private Sampler[] samplers;
+    private Sampler sampler;
     private Channel channel;
 
-    public Animation(Source[] sources, Sampler[] samplers, Channel channel) {
+    public Animation(String id, Source[] sources, Sampler sampler, Channel channel) {
+        this.id = id;
         this.sources = sources;
-        this.samplers = samplers;
+        this.sampler = sampler;
         this.channel = channel;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public Source[] getSources() {
         return sources;
     }
 
-    public Sampler[] getSamplers() {
-        return samplers;
+    public Sampler getSampler() {
+        return sampler;
     }
 
     public Channel getChannel() {

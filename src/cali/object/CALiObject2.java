@@ -14,9 +14,9 @@ import cali.maths.CALiMatrix4f;
 import cali.maths.CALiQuaternion;
 import cali.maths.CALiVector3f;
 import cali.model.CALiJoint;
-import cali.model.animation.CALiAnimation;
-import cali.model.animation.CALiJointTransform;
-import cali.model.animation.CALiKeyFrame;
+import cali.animation.CALiAnimation;
+import cali.animation.CALiJointTransform;
+import cali.animation.CALiKeyFrame;
 import cali.parser.CALiParser;
 import cali.commons.Input;
 import cali.commons.source.BasicArray;
@@ -304,8 +304,7 @@ public class CALiObject2 {
                         matrix = BLENDER_CORRECTION.multiply(matrix);
 
                         if(node2.getType().equals("JOINT")){
-                            root = new CALiJoint(node2.getId(), node2.getName(), node2.getSid(), matrix,
-                                    null);
+                            root = new CALiJoint(node2.getId(), node2.getName(), node2.getSid(), matrix, null);
                             root.setChildren(parseJointChildren(root, node2));
 
                         } else {
@@ -553,7 +552,7 @@ public class CALiObject2 {
 
             /* THE SAME AS BELOW, CONFIRM THIS POSITION
             */
-            animations.add(new CALiAnimation(length, keyFrames));
+            animations.add(new CALiAnimation("walk", length, keyFrames));
 
             this.animations = animations;
 
