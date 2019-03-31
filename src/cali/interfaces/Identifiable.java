@@ -1,6 +1,6 @@
 package cali.interfaces;
 
-public interface CALiDataStructure {
+public interface Identifiable {
 
     String NO_ID = "NO-ID";
     String NO_SEMANTIC = "NO-SEMANTIC";

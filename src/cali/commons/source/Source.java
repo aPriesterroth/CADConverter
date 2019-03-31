@@ -1,7 +1,7 @@
 package cali.commons.source;
 
 import cali.commons.source.techniqueCommon.TechniqueCommon;
-import cali.interfaces.CALiDataStructure;
+import cali.interfaces.Identifiable;
 
 /**
  * Implementation of a source consisting of an id string, a basic array object and a technique common. This is a direct
@@ -11,7 +11,7 @@ import cali.interfaces.CALiDataStructure;
  *
  * Created by Aaron on 17.11.17.
  */
-public class Source implements CALiDataStructure {
+public class Source implements Identifiable {
 
     private String id;
 
@@ -58,12 +58,12 @@ public class Source implements CALiDataStructure {
 
     /**
      * Implementation of the getSemantic() method every identifiable object has. Returning
-     * "CALiDataStructure.NO_SEMANTIC" identifies that there is no natural semantic present for this object.
+     * "Identifiable.NO_SEMANTIC" identifies that there is no natural semantic present for this object.
      *
      * @return the semantic of the identifiable object
      */
     @Override
     public String getSemantic() {
-        return CALiDataStructure.NO_SEMANTIC;
+        return Identifiable.NO_SEMANTIC;
     }
 }

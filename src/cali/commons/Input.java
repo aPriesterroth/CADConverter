@@ -1,6 +1,6 @@
 package cali.commons;
 
-import cali.interfaces.CALiDataStructure;
+import cali.interfaces.Identifiable;
 
 /**
  * Implementation of an input consisting of a semantic and a source string, an offset and a set and a type. An input
@@ -11,7 +11,7 @@ import cali.interfaces.CALiDataStructure;
  *
  * Created by Aaron on 17.11.17.
  */
-public class Input implements CALiDataStructure {
+public class Input implements Identifiable {
 
     private enum InputType {
         SEMANTIC_SOURCE, SEMANTIC_SOURCE_OFFSET, SEMANTIC_SOURCE_OFFSET_SET
@@ -73,14 +73,14 @@ public class Input implements CALiDataStructure {
     }
 
     /**
-     * Implementation of the getId() method every identifiable object has. Returning "CALiDataStructure.NO_ID" indicates
+     * Implementation of the getId() method every identifiable object has. Returning "Identifiable.NO_ID" indicates
      * that there is no natural id present.
      *
      * @return the id of the identifiable object
      */
     @Override
     public String getId() {
-        return CALiDataStructure.NO_ID;
+        return Identifiable.NO_ID;
     }
 
     /**

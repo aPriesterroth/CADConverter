@@ -5,7 +5,7 @@ import cali.commons.Input;
 import cali.commons.source.FloatArray;
 import cali.commons.source.NameArray;
 import cali.commons.source.Source;
-import cali.interfaces.CALiDataStructure;
+import cali.interfaces.Identifiable;
 import cali.libraries.animations.AnimationsLibrary;
 import cali.libraries.animations.animation.Animation;
 import cali.libraries.controllers.ControllersLibrary;
@@ -248,18 +248,18 @@ public class CALiRawModel extends CALiObject {
     }
 
     /**
-     * Retrieves a CALiDataStructure object (such as an Input, a Source, etc.) from an array of CALiDataStructure
+     * Retrieves a Identifiable object (such as an Input, a Source, etc.) from an array of Identifiable
      * objects based on a specific id.
      *
-     * @param dataStructures - the array of CALiDataStructure objects to retrieve from
+     * @param dataStructures - the array of Identifiable objects to retrieve from
      * @param id - the id of the object to retrieve
      *
-     * @return - the CALiDataStructure object with the specific id
+     * @return - the Identifiable object with the specific id
      *
-     * @throws CALiMissingDataException - the array of CALiDataStructure objects cannot be null and the
-     * CALiDataStructure object with the specific id MUST be present in the array of objects
+     * @throws CALiMissingDataException - the array of Identifiable objects cannot be null and the
+     * Identifiable object with the specific id MUST be present in the array of objects
      */
-    private CALiDataStructure getDataStructureById(CALiDataStructure[] dataStructures, String id) throws CALiMissingDataException {
+    private Identifiable getDataStructureById(Identifiable[] dataStructures, String id) throws CALiMissingDataException {
         if(dataStructures == null) {
             throw new IllegalArgumentException("Data structure array cannot be null");
         }
@@ -268,18 +268,18 @@ public class CALiRawModel extends CALiObject {
     }
 
     /**
-     * Retrives a CALiDataStructure object (such as an Input, a Source, etc.) from an array of CALiDataStructure
+     * Retrives a Identifiable object (such as an Input, a Source, etc.) from an array of Identifiable
      * objects based on a specific semantic.
      *
-     * @param dataStructures - the array of CALiDataStructure objects to retrieve from
+     * @param dataStructures - the array of Identifiable objects to retrieve from
      * @param semantic - the id of the object to retrieve
      *
-     * @return - the CALiDataStructure object with the specific id
+     * @return - the Identifiable object with the specific id
      *
-     * @throws CALiMissingDataException - the array of CALiDataStructure objects cannot be null and the
-     * CALiDataStructure object with the specific semantic MUST be present in the array of objects
+     * @throws CALiMissingDataException - the array of Identifiable objects cannot be null and the
+     * Identifiable object with the specific semantic MUST be present in the array of objects
      */
-    private CALiDataStructure getDataStructureBySemantic(CALiDataStructure[] dataStructures, String semantic) throws CALiMissingDataException {
+    private Identifiable getDataStructureBySemantic(Identifiable[] dataStructures, String semantic) throws CALiMissingDataException {
         if(dataStructures == null) {
             throw new IllegalArgumentException("Data structure array cannot be null");
         }

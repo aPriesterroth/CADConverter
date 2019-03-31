@@ -1,12 +1,12 @@
 package cali.libraries.animations.animation;
 
 import cali.commons.source.Source;
-import cali.interfaces.CALiDataStructure;
+import cali.interfaces.Identifiable;
 
 /**
  * Created by Aaron on 17.11.17.
  */
-public class Animation implements CALiDataStructure {
+public class Animation implements Identifiable {
 
     private String id;
 
@@ -27,7 +27,7 @@ public class Animation implements CALiDataStructure {
 
     @Override
     public String getSemantic() {
-        return CALiDataStructure.NO_SEMANTIC;
+        return Identifiable.NO_SEMANTIC;
     }
 
     public Source[] getSources() {
