@@ -7,6 +7,13 @@ import cali.animation.CALiKeyFrame;
 
 import java.util.Map;
 
+/**
+ * Implementation of an animator managing the animation for the model. It sets the current animation of the model
+ * and updates it according to some number of passed frames within the environment.
+ *
+ * @author Aaron Priesterroth
+ *
+ */
 public class CALiAnimator {
 
     private final CALiJoint rootJoint;
