@@ -56,6 +56,10 @@ public class CALiAnimation {
         return keyFrames;
     }
 
+    /**
+     *
+     * @return the animation in a human-readable format for debugging purposes represented by a string
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -65,7 +69,7 @@ public class CALiAnimation {
 
         for(CALiKeyFrame frame : keyFrames) {
             builder.append("    - ").append("Timestamp: ").append(frame.getTimeStamp()).append("\n");
-            int index = 0;
+
             for(Map.Entry<String, CALiJointTransform> entry : frame.getPoses().entrySet()) {
                 String key = entry.getKey();
                 CALiJointTransform value = entry.getValue();
@@ -75,7 +79,6 @@ public class CALiAnimation {
             }
             builder.append("--------------------------------------------------------------------").append("\n");
         }
-
         return builder.toString();
     }
 }

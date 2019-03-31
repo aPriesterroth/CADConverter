@@ -62,11 +62,21 @@ public class CALiJointTransform {
      * @param b the second joint transform (i.e., the transform the joint will have in the future)
      * @param progression the progress of the interpolation between the two joint transforms (i.e., 0.5 would be the
      *                    halve way between the two)
-     * @return the interpolated joint transform of the two specified joint transforms based on the progression
+     *
+     * @return the interpolated joint transform of the two specified joint transforms based on the specified progression
      * value
      */
     public static CALiJointTransform interpolate(CALiJointTransform a, CALiJointTransform b, float progression) {
         return new CALiJointTransform(CALiVector3f.interpolate(a.getPosition(), b.getPosition(), progression),
                 CALiQuaternion.interpolate(a.getRotation(), b.getRotation(), progression));
+    }
+
+    /**
+     *
+     * @return the joint transform in a human-readable format for debugging purposes
+     */
+    @Override
+    public String toString() {
+        return "[Position = " + position.toString() + ", Rotation = " + rotation.toString() + "]";
     }
 }

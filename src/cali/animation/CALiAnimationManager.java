@@ -1,6 +1,7 @@
 package cali.animation;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Implementation of a simple manager of animations for a multitude of models. Within the manager, animations are
@@ -46,7 +47,7 @@ public class CALiAnimationManager {
      * @return the map of animations if the modelName is contained within the map of animations and models
      * {@link #animations}, null if not
      */
-    public static HashMap<String, CALiAnimation> getAnimations(String modelName) {
+    private static HashMap<String, CALiAnimation> getAnimations(String modelName) {
         return animations.get(modelName);
     }
 
@@ -71,7 +72,7 @@ public class CALiAnimationManager {
      *
      * @return true, if the map contains a map for the modelName, else false
      */
-    public static boolean hasAnimations(String modelName) {
+    private static boolean hasAnimations(String modelName) {
         return animations.containsKey(modelName);
     }
 
@@ -90,5 +91,26 @@ public class CALiAnimationManager {
             return animations.get(modelName).containsKey(animationName);
         }
         return false;
+    }
+
+    /**
+     *
+     * @return the list of animations for every model contained in the {@link #animations} map in a human-readable
+     * format for debugging purposes
+     */
+    public static String asString() {
+        StringBuilder builder = new StringBuilder();
+
+        for(Map.Entry<String, HashMap<String, CALiAnimation>> entry : CALiAnimationManager.animations.entrySet()) {
+            String key = entry.getKey();
+            HashMap<String, CALiAnimation> animations = entry.getValue();
+
+            builder.append("Model name: ").append(key).append("\n");
+
+            for(Map.Entry<String, CALiAnimation> entry2 : animations.entrySet()) {
+                builder.append(entry2.getValue().toString());
+            }
+        }
+        return builder.toString();
     }
 }
