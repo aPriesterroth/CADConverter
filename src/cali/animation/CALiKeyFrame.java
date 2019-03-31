@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Implementation of a key frame with a specific time stamp (i.e. the time of the frame occurring) and a map consisting
+ * of a joint transform at the specific time stamp for every joint of the model.
+ *
+ * @author Aaron Priesterroth
+ *
  * Created by Aaron on 23.11.17.
  */
 public class CALiKeyFrame {
