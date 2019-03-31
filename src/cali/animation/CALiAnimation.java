@@ -1,5 +1,7 @@
 package cali.animation;
 
+import java.util.Map;
+
 /**
  * Implementation of an animation represented by a name, the length of the animation and an array of CALiKeyframes.
  * For every keyframe, the array saves the time stamp of the keyframe as well as a map of joint names and their
@@ -52,5 +54,28 @@ public class CALiAnimation {
      */
     public CALiKeyFrame[] getKeyFrames() {
         return keyFrames;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("Name: ").append(name).append("\n");
+        builder.append("Length: ").append(length).append("\n");
+
+        for(CALiKeyFrame frame : keyFrames) {
+            builder.append("    - ").append("Timestamp: ").append(frame.getTimeStamp()).append("\n");
+            int index = 0;
+            for(Map.Entry<String, CALiJointTransform> entry : frame.getPoses().entrySet()) {
+                String key = entry.getKey();
+                CALiJointTransform value = entry.getValue();
+                builder.append("    - ").append(key).append("\n");
+                builder.append("        - ").append("pos=").append(value.getPosition().toString()).append("\n");
+                builder.append("        - ").append("rot=").append(value.getRotation().toString()).append("\n");
+            }
+            builder.append("--------------------------------------------------------------------").append("\n");
+        }
+
+        return builder.toString();
     }
 }

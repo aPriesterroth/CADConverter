@@ -2,7 +2,7 @@ package cali.maths;
 
 public class CALiMatrix4f {
 
-    private static final int MATRIX_DIMENSION = 4;
+    private static final int MATRIX_SIZE = 4 * 4;
 
     public float m00, m01, m02, m03,
             m10, m11, m12, m13,
@@ -16,7 +16,7 @@ public class CALiMatrix4f {
 
     public CALiMatrix4f(float[] components) {
         super();
-        if(components.length == (MATRIX_DIMENSION * MATRIX_DIMENSION)) {
+        if(components.length == (MATRIX_SIZE)) {
             m00 = components[0];
             m01 = components[1];
             m02 = components[2];
@@ -260,6 +260,14 @@ public class CALiMatrix4f {
         matrix4f.m13 = m03 * f10 + m13 * f11 + m23 * f12;
 
         return matrix4f;
+    }
+
+    /**
+     *
+     * @return the size of the matrix (i.e., the number of entries in the matrix)
+     */
+    public static int getMatrixSize() {
+        return MATRIX_SIZE;
     }
 
     @Override

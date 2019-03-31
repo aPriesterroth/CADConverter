@@ -60,6 +60,7 @@ public class CALiRawModel extends CALiObject {
     private static final String SEMANTIC_JOINT = "JOINT";
     private static final String SEMANTIC_WEIGHT = "WEIGHT";
     private static final String SEMANTIC_INPUT = "INPUT";
+    private static final String SEMANTIC_OUTPUT = "OUTPUT";
 
     protected String modelName;
     protected String animationName;
@@ -167,7 +168,7 @@ public class CALiRawModel extends CALiObject {
         parseDataFromImagesLibrary(imagesLibrary);
 
         if(!CALiAnimationManager.hasAnimation(modelName, animationName)) {
-            parseDataFromAnimationsLibrary2(animationsLibrary, animationName);
+            parseDataFromAnimationsLibrary(animationsLibrary, animationName);
         }
     }
 
@@ -180,57 +181,6 @@ public class CALiRawModel extends CALiObject {
     public void introduceAnimation(String path, String animationName) {
         if(!CALiAnimationManager.hasAnimation(modelName, animationName)) {
             parseDataFromAnimationsLibrary(new CALiParser(path).parseAnimationsLibrary(), animationName);
-        }
-    }
-
-    private void parseDataFromAnimationsLibrary2(AnimationsLibrary library, String animationName) {
-
-        try {
-            Animation rootJointAnimation = Arrays.stream(library.getAnimations()).filter(
-                    x -> x.getId().contains(rootJoint.getId())).findFirst().orElse(null);
-
-            String inputSourceStr = ((Input) getDataStructureBySemantic(rootJointAnimation.getSampler().getInputs(),
-                    SEMANTIC_INPUT)).getSource();
-
-            Source inputSource = ((Source) getDataStructureById(rootJointAnimation.getSources(), inputSourceStr));
-
-            float[] times = ((FloatArray) inputSource.getArray()).getFloats();
-            float duration = times[times.length - 1];
-
-            CALiKeyFrame[] keyFrames = new CALiKeyFrame[times.length];
-
-            for(int i = 0; i < keyFrames.length; i++) {
-                keyFrames[i] = new CALiKeyFrame(times[i]);
-            }
-
-            for(Animation animation : library.getAnimations()) {
-                // Only get the first part of "Torso/transform"
-                String jointId = animation.getChannel().getTarget().split("/")[0];
-
-                String outputSourceStr = ((Input) getDataStructureBySemantic(animation.getSampler().getInputs(),
-                        "OUTPUT")).getSource();
-
-                Source outputSource = ((Source) getDataStructureById(animation.getSources(), outputSourceStr));
-
-                for(int i = 0; i < keyFrames.length; i++) {
-                    float[] sub = Arrays.copyOfRange(((FloatArray) outputSource.getArray()).getFloats(), 16*i, 16*i + 16);
-
-                    CALiMatrix4f transform = new CALiMatrix4f(sub).transpose();
-
-                    if(correctBlenderCoordinates && jointId.equals(rootJoint.getId())) {
-                        transform = BLENDER_CORRECTION.multiply(transform);
-                    }
-                    CALiVector3f position = new CALiVector3f(transform.m30, transform.m31, transform.m32);
-                    CALiQuaternion rotation = new CALiQuaternion(transform);
-
-                    keyFrames[i].getPoses().put(jointId, new CALiJointTransform(position, rotation));
-                }
-            }
-
-            CALiAnimationManager.introduceAnimation(modelName, new CALiAnimation(animationName, duration, keyFrames));
-
-        } catch (CALiMissingDataException e) {
-            e.printStackTrace();
         }
     }
 
@@ -255,10 +205,10 @@ public class CALiRawModel extends CALiObject {
             float[] times = ((FloatArray) inputSource.getArray()).getFloats();
             float duration = times[times.length - 1];
 
-            CALiKeyFrameData[] keyFramesData = new CALiKeyFrameData[times.length];
+            CALiKeyFrame[] keyFrames = new CALiKeyFrame[times.length];
 
-            for(int i = 0; i < keyFramesData.length; i++) {
-                keyFramesData[i] = new CALiKeyFrameData(times[i]);
+            for(int i = 0; i < keyFrames.length; i++) {
+                keyFrames[i] = new CALiKeyFrame(times[i]);
             }
 
             for(Animation animation : library.getAnimations()) {
@@ -266,53 +216,35 @@ public class CALiRawModel extends CALiObject {
                 String jointId = animation.getChannel().getTarget().split("/")[0];
 
                 String outputSourceStr = ((Input) getDataStructureBySemantic(animation.getSampler().getInputs(),
-                        "OUTPUT")).getSource();
+                        SEMANTIC_OUTPUT)).getSource();
 
                 Source outputSource = ((Source) getDataStructureById(animation.getSources(), outputSourceStr));
 
-                for(int i = 0; i < keyFramesData.length; i++) {
-                    float[] sub = Arrays.copyOfRange(((FloatArray) outputSource.getArray()).getFloats(), 16*i, 16*i + 16);
+                for(int i = 0; i < keyFrames.length; i++) {
+
+                    int subFrom = CALiMatrix4f.getMatrixSize()*i;
+                    int subTo = subFrom + CALiMatrix4f.getMatrixSize();
+
+                    float[] sub = Arrays.copyOfRange(((FloatArray) outputSource.getArray()).getFloats(),
+                            subFrom, subTo);
 
                     CALiMatrix4f transform = new CALiMatrix4f(sub).transpose();
 
                     if(correctBlenderCoordinates && jointId.equals(rootJoint.getId())) {
                         transform = BLENDER_CORRECTION.multiply(transform);
                     }
+                    CALiVector3f position = new CALiVector3f(transform.m30, transform.m31, transform.m32);
+                    CALiQuaternion rotation = new CALiQuaternion(transform);
 
-                    keyFramesData[i].addJointTransform(new CALiJointTransformData(jointId, transform));
+                    keyFrames[i].getPoses().put(jointId, new CALiJointTransform(position, rotation));
                 }
             }
-            initializeAnimation(animationName, keyFramesData, duration);
+
+            CALiAnimationManager.introduceAnimation(modelName, new CALiAnimation(animationName, duration, keyFrames));
+
         } catch (CALiMissingDataException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Creates and initializes a CALiKeyFrame array representing an animation based on an array of CALiKeyFrameData.
-     *
-     * @param keyFramesData - the CALiKeyFrameData array the animation is based on
-     * @param duration - the duration of the animation
-     */
-    private void initializeAnimation(String animationName, CALiKeyFrameData[] keyFramesData, float duration) {
-        CALiKeyFrame[] keyFrames = new CALiKeyFrame[keyFramesData.length];
-
-        for(int i = 0; i < keyFrames.length; i++) {
-
-            Map<String, CALiJointTransform> map = new HashMap<>();
-
-            for(CALiJointTransformData jointTransformData : keyFramesData[i].jointTransforms) {
-
-                CALiMatrix4f matrix = jointTransformData.jointLocalTransform;
-                CALiVector3f translation = new CALiVector3f(matrix.m30, matrix.m31, matrix.m32);
-                CALiQuaternion rotation = new CALiQuaternion(matrix);
-
-                CALiJointTransform jointTransform = new CALiJointTransform(translation, rotation);
-                map.put(jointTransformData.jointNameId, jointTransform);
-            }
-            keyFrames[i] = new CALiKeyFrame(keyFramesData[i].time, map);
-        }
-        CALiAnimationManager.introduceAnimation(modelName, new CALiAnimation(animationName, duration, keyFrames));
     }
 
     /**

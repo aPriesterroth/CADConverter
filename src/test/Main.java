@@ -1,5 +1,6 @@
 package test;
 
+import cali.animation.CALiAnimation;
 import cali.animation.CALiAnimationManager;
 import cali.model.CALiModel;
 
@@ -34,6 +35,8 @@ public class Main {
         object.introduceAnimation(filepath, animationName3);
 
         CALiAnimationManager caLiAnimationManager = new CALiAnimationManager();
+
+        System.out.println(CALiAnimationManager.getAnimation(modelName, animationName2).toString());
 
         System.out.println(object.toString());
     }
