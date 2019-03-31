@@ -117,6 +117,6 @@ public class CALiQuaternion {
 
     @Override
     public String toString() {
-        return w + " + " + x + "i + " + y + "j + " + z + "k";
+        return w + (x >= 0 ? " +" : " ") + x + (y >= 0 ? "i +" : "i ") + y + (z >= 0 ? "j +" : "j ") + z + "k";
     }
 }

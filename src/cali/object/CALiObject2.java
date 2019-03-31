@@ -1,6 +1,6 @@
 package cali.object;
 
-import cali.exceptions.ParsingException;
+import cali.exceptions.CALiParsingException;
 import cali.libraries.animations.AnimationsLibrary;
 import cali.libraries.animations.animation.Animation;
 import cali.libraries.controllers.ControllersLibrary;
@@ -89,7 +89,7 @@ public class CALiObject2 {
 
             //rootJoint.calculateInverseBindTransform(new CALiMatrix4f());
 
-        } catch (ParsingException e){
+        } catch (CALiParsingException e){
             e.printStackTrace();
         }
 
@@ -180,7 +180,7 @@ public class CALiObject2 {
      *
      * @param library - the specific GeometriesLibrary
      */
-    private void parseGeometryData(GeometriesLibrary library) throws ParsingException {
+    private void parseGeometryData(GeometriesLibrary library) throws CALiParsingException {
 
         // Parsing vertex, normals, and textureCoord indices
         List<Integer> vIndices = new ArrayList<>();
@@ -206,7 +206,7 @@ public class CALiObject2 {
         }
 
         if(vOff == -1 || nOff == -1 || tOff == -1)
-            throw new ParsingException("Unable to retrieve vertices, normals and textureCoords offset!");
+            throw new CALiParsingException("Unable to retrieve vertices, normals and textureCoords offset!");
 
         int paragraphOffset = 0, inputCount = polylist.getInputs().length;
 
@@ -254,7 +254,7 @@ public class CALiObject2 {
      *
      * @param library - the specific ImagesLibrary
      */
-    private void parseTextureFileName(ImagesLibrary library) throws ParsingException {
+    private void parseTextureFileName(ImagesLibrary library) throws CALiParsingException {
 
         int extension = 4;
 
@@ -264,7 +264,7 @@ public class CALiObject2 {
             textureFileName = fileName.substring(0, library.getImage().getInitFrom().length() - extension);
 
         else
-            throw new ParsingException("Texture file name is null or in an illegal format!");
+            throw new CALiParsingException("Texture file name is null or in an illegal format!");
     }
 
     /**
@@ -273,7 +273,7 @@ public class CALiObject2 {
      *
      * @param library - the specific VisualScenesLibrary
      */
-    private void parseVisualSceneData(VisualScenesLibrary library) throws ParsingException {
+    private void parseVisualSceneData(VisualScenesLibrary library) throws CALiParsingException {
 
         String rootName = "";
 
@@ -316,7 +316,7 @@ public class CALiObject2 {
                         jointCount += 1;
                     }
         } else
-            throw new ParsingException("Unable to find the roots name!");
+            throw new CALiParsingException("Unable to find the roots name!");
     }
 
     /**
@@ -359,7 +359,7 @@ public class CALiObject2 {
      *
      * @param library - the specific ControllersLibrary
      */
-    private void parseControllersData(ControllersLibrary library) throws ParsingException {
+    private void parseControllersData(ControllersLibrary library) throws CALiParsingException {
 
         String weightsSourceStr = "";
 
@@ -374,7 +374,7 @@ public class CALiObject2 {
                     weights = ((FloatArray) source.getArray()).getFloats();
 
         } else {
-            throw new ParsingException("Unable to find the weights source string!");
+            throw new CALiParsingException("Unable to find the weights source string!");
         }
 
         String jointsSourceStr = "";
@@ -398,7 +398,7 @@ public class CALiObject2 {
         }
 
         if(invBindSource == null){
-            throw new ParsingException("Unable to locate the invBindTransform source!");
+            throw new CALiParsingException("Unable to locate the invBindTransform source!");
         }
 
         for(Source source : library.getController().getSkin().getSources()){
@@ -495,9 +495,9 @@ public class CALiObject2 {
      *
      * @param library -
      *
-     * @throws ParsingException -
+     * @throws CALiParsingException -
      */
-    private void parseAnimationsData(AnimationsLibrary library) throws ParsingException {
+    private void parseAnimationsData(AnimationsLibrary library) throws CALiParsingException {
 
         ArrayList<CALiAnimation> animations = new ArrayList<>();
 
@@ -556,7 +556,7 @@ public class CALiObject2 {
             this.animations = animations;
 
         } else {
-            throw new ParsingException("Unable to locate the timestamps!");
+            throw new CALiParsingException("Unable to locate the timestamps!");
         }
 
         /* THE SAME AS ABOVE, CONFIRM NEW POSITION FOR THIS

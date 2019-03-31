@@ -1,10 +1,10 @@
 package cali.model;
 
+import cali.animator.CALiAnimator;
 import cali.commons.Input;
 import cali.commons.source.FloatArray;
 import cali.commons.source.NameArray;
 import cali.commons.source.Source;
-import cali.exceptions.*;
 import cali.interfaces.CALiDataStructure;
 import cali.libraries.animations.AnimationsLibrary;
 import cali.libraries.animations.animation.Animation;
@@ -18,6 +18,7 @@ import cali.maths.*;
 import cali.animation.*;
 import cali.object.CALiObject;
 import cali.parser.CALiParser;
+import cali.exceptions.CALiMissingDataException;
 
 import java.util.*;
 
@@ -38,7 +39,7 @@ public class CALiRawModel extends CALiObject {
      * Implemented in the constructor, based on another CALiModel.
      *
      * UPDATE 2:
-     * For the animations, once can create a RawModel (or something else, not quite sure yet) and use the method
+     * For the animations, one can create a RawModel (or something else, not quite sure yet) and use the method
      * extractAnimations() to retrieve the list of animations for this model and keep it at one place, instead of for
      * every model itself. But maybe its not even problematic to keep it for every model (look into space complexity).
      * How ever, from this point on can call duplicate() on the raw model to derive the desired model from the blueprint,
@@ -58,6 +59,7 @@ public class CALiRawModel extends CALiObject {
 
     private static final String SEMANTIC_JOINT = "JOINT";
     private static final String SEMANTIC_WEIGHT = "WEIGHT";
+    private static final String SEMANTIC_INPUT = "INPUT";
 
     protected String modelName;
     protected String animationName;
@@ -85,6 +87,8 @@ public class CALiRawModel extends CALiObject {
     protected ArrayList<CALiVector3f> normalsList;
 
     protected ArrayList<Integer> indicesList;
+
+    protected CALiAnimator animator;
 
     /**
      * Creates a minimal version of a CALiRawModel based on a CALiRawModel instance by only copying relevant data
@@ -121,6 +125,8 @@ public class CALiRawModel extends CALiObject {
         this.normalsList = null;
 
         this.indicesList = null;
+
+        this.animator = rawModel.animator;
     }
 
     /**
@@ -138,6 +144,8 @@ public class CALiRawModel extends CALiObject {
         this.animationName = animationName;
 
         initializeLibrariesParsing();
+
+        this.animator = new CALiAnimator(rootJoint);
     }
 
     /**
@@ -159,7 +167,7 @@ public class CALiRawModel extends CALiObject {
         parseDataFromImagesLibrary(imagesLibrary);
 
         if(!CALiAnimationManager.hasAnimation(modelName, animationName)) {
-            parseDataFromAnimationsLibrary(animationsLibrary, animationName);
+            parseDataFromAnimationsLibrary2(animationsLibrary, animationName);
         }
     }
 
@@ -175,6 +183,57 @@ public class CALiRawModel extends CALiObject {
         }
     }
 
+    private void parseDataFromAnimationsLibrary2(AnimationsLibrary library, String animationName) {
+
+        try {
+            Animation rootJointAnimation = Arrays.stream(library.getAnimations()).filter(
+                    x -> x.getId().contains(rootJoint.getId())).findFirst().orElse(null);
+
+            String inputSourceStr = ((Input) getDataStructureBySemantic(rootJointAnimation.getSampler().getInputs(),
+                    SEMANTIC_INPUT)).getSource();
+
+            Source inputSource = ((Source) getDataStructureById(rootJointAnimation.getSources(), inputSourceStr));
+
+            float[] times = ((FloatArray) inputSource.getArray()).getFloats();
+            float duration = times[times.length - 1];
+
+            CALiKeyFrame[] keyFrames = new CALiKeyFrame[times.length];
+
+            for(int i = 0; i < keyFrames.length; i++) {
+                keyFrames[i] = new CALiKeyFrame(times[i]);
+            }
+
+            for(Animation animation : library.getAnimations()) {
+                // Only get the first part of "Torso/transform"
+                String jointId = animation.getChannel().getTarget().split("/")[0];
+
+                String outputSourceStr = ((Input) getDataStructureBySemantic(animation.getSampler().getInputs(),
+                        "OUTPUT")).getSource();
+
+                Source outputSource = ((Source) getDataStructureById(animation.getSources(), outputSourceStr));
+
+                for(int i = 0; i < keyFrames.length; i++) {
+                    float[] sub = Arrays.copyOfRange(((FloatArray) outputSource.getArray()).getFloats(), 16*i, 16*i + 16);
+
+                    CALiMatrix4f transform = new CALiMatrix4f(sub).transpose();
+
+                    if(correctBlenderCoordinates && jointId.equals(rootJoint.getId())) {
+                        transform = BLENDER_CORRECTION.multiply(transform);
+                    }
+                    CALiVector3f position = new CALiVector3f(transform.m30, transform.m31, transform.m32);
+                    CALiQuaternion rotation = new CALiQuaternion(transform);
+
+                    keyFrames[i].getPoses().put(jointId, new CALiJointTransform(position, rotation));
+                }
+            }
+
+            CALiAnimationManager.introduceAnimation(modelName, new CALiAnimation(animationName, duration, keyFrames));
+
+        } catch (CALiMissingDataException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Parsing the a CALiAnimation from a specific AnimationsLibrary and introducing it to the
      * {@link CALiAnimationManager}.
@@ -185,12 +244,11 @@ public class CALiRawModel extends CALiObject {
     private void parseDataFromAnimationsLibrary(AnimationsLibrary library, String animationName) {
 
         try {
-            Animation rootJointAnimation = ((Animation) Arrays.stream(library.getAnimations()).filter(
-                    x -> x.getId().contains(rootJoint.getId())).findFirst().orElse(null));
-            //Animation rootJointAnimation = ((Animation) getDataStructureById(library.getAnimations(), rootJoint.getId()));
+            Animation rootJointAnimation = Arrays.stream(library.getAnimations()).filter(
+                    x -> x.getId().contains(rootJoint.getId())).findFirst().orElse(null);
 
             String inputSourceStr = ((Input) getDataStructureBySemantic(rootJointAnimation.getSampler().getInputs(),
-                    "INPUT")).getSource();
+                    SEMANTIC_INPUT)).getSource();
 
             Source inputSource = ((Source) getDataStructureById(rootJointAnimation.getSources(), inputSourceStr));
 
@@ -582,7 +640,7 @@ public class CALiRawModel extends CALiObject {
     private void setVertexIndices(int positionIndex, int textureIndex, int normalIndex) {
         CALiVertex vertex = verticesList.get(positionIndex);
 
-        if(!vertex.hasIndiciesSet()) {
+        if(!vertex.hasIndicesSet()) {
             vertex.setTextureIndex(textureIndex);
             vertex.setNormalIndex(normalIndex);
             indicesList.add(positionIndex);
@@ -633,7 +691,7 @@ public class CALiRawModel extends CALiObject {
      */
     private void trimVerticesList() {
         for(CALiVertex vertex : verticesList) {
-            if(!vertex.hasIndiciesSet()) {
+            if(!vertex.hasIndicesSet()) {
                 vertex.setTextureIndex(0);
                 vertex.setNormalIndex(0);
             }

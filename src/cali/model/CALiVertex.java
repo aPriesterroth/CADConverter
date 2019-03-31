@@ -32,7 +32,7 @@ public class CALiVertex {
         return normalIndex != -1;
     }
 
-    public boolean hasIndiciesSet() {
+    public boolean hasIndicesSet() {
         return hasTextureIndex() && hasNormalIndex();
     }
 

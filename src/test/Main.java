@@ -1,4 +1,4 @@
-package cali;
+package test;
 
 import cali.animation.CALiAnimationManager;
 import cali.model.CALiModel;
